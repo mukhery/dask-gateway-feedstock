@@ -1,13 +1,13 @@
 {% set name = "dask-gateway" %}
-{% set version = "0.3.0" %}
+{% set version = "0.4.1" %}
 
 package:
   version: {{ version }}
   name: {{ name|lower }}
 
 source:
-  url: https://github.com/jcrist/{{ name }}/archive/{{ version }}.tar.gz
-  sha256: f1bd048d7771af81504cda41ebddbf9c95e97f0b4980a769e69d76519c895ccc
+  url: https://github.com/dask/{{ name }}/archive/{{ version }}.tar.gz
+  sha256: 0d109c5bb82c9b1abb1e24cedd499771100aa71a6121ac745f09ff9aef4a7676
 
 build:
   number: 0
@@ -114,14 +114,14 @@ outputs:
         - dask_gateway_server.managers.yarn
 
 about:
-  home: http://github.com/jcrist/dask-gateway
+  home: http://github.com/dask/dask-gateway
   license: New BSD
   license_family: BSD
-  license_file: dask-gateway/LICENSE
+  license_file: LICENSE
   summary: A multi-tenant server for securely deploying and managing Dask clusters.
   description: A multi-tenant server for securely deploying and managing Dask clusters.
-  doc_url: https://jcrist.github.io/dask-gateway
-  dev_url: http://github.com/jcrist/dask-gateway
+  doc_url: https://gateway.dask.org
+  dev_url: http://github.com/dask/dask-gateway
 
 extra:
   recipe-maintainers:
