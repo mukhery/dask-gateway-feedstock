@@ -7,10 +7,10 @@ package:
 
 source:
   url: https://github.com/dask/{{ name }}/archive/{{ version }}.tar.gz
-  sha256: 010cec53f28114ee03e997e6ab62d1000e328072bd9f87eb78aaec25448a315d
+  sha256: 1d8a2377cb22e1e2d2bac07b32cd394ec627176ac4725e93eb8f564f40ed0084
 
 build:
-  number: 0
+  number: 1
   skip: True  # [py<36]
   script: cd dask-gateway && python -m pip install . -vv --no-deps
   entry_points:
