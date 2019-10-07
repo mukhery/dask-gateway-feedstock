@@ -1,5 +1,5 @@
 {% set name = "dask-gateway" %}
-{% set version = "0.4.1" %}
+{% set version = "0.5.0" %}
 
 package:
   version: {{ version }}
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/dask/{{ name }}/archive/{{ version }}.tar.gz
-  sha256: 0d109c5bb82c9b1abb1e24cedd499771100aa71a6121ac745f09ff9aef4a7676
+  sha256: 010cec53f28114ee03e997e6ab62d1000e328072bd9f87eb78aaec25448a315d
 
 build:
   number: 0

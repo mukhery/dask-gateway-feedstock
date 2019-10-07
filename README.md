@@ -1,7 +1,7 @@
 About dask-gateway
 ==================
 
-Home: http://github.com/jcrist/dask-gateway
+Home: http://github.com/dask/dask-gateway
 
 Package license: New BSD
 
