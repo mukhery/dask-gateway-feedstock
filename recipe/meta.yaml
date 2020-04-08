@@ -1,5 +1,5 @@
 {% set name = "dask-gateway" %}
-{% set version = "0.6.1" %}
+{% set version = "0.7.0" %}
 
 package:
   version: {{ version }}
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/dask/{{ name }}/archive/{{ version }}.tar.gz
-  sha256: 6a925b5c23358cfd4aeb47b31e6874cfa949d3cd8744774b52031415974279ec
+  sha256: 93d51c2a2ceb2c30753e5b32ad31cdc539c0e6b83cb55f293e79cd635aabde6b
 
 build:
   number: 0
@@ -23,7 +23,7 @@ requirements:
     - pip
   run:
     - python
-    - tornado
+    - aiohttp
     - dask >=2.2.0
     - distributed >=2.2.0
 
@@ -35,10 +35,10 @@ test:
     - dask-gateway-worker --help
 
 outputs:
-  # dask-gateway is the output described by the rest of the meta.yaml (i.e.,
-  # the stuff that's not included in this outputs section)
+    # Core client package (full recipe is above)
   - name: dask-gateway
 
+    # Client-side kerberos auth
   - name: dask-gateway-kerberos
     build:
       skip: True  # [py<36]
@@ -49,14 +49,12 @@ outputs:
       - winkerberos  # [win]
     test:
       imports:
-        # This import is to silence the conda-forge linter. Successfully
-        # testing that the addition of the kerberos library enables the
-        # kerberos functionality is pretty challenging and ultimately not
-        # really worth it
         - dask_gateway
 
+    # Core package, required dependencies only
   - name: dask-gateway-server
-    script: dask-gateway-server.sh
+    # XXX: conda-build requires a file here for some reason, can't inline script
+    script: build-dask-gateway-server.sh
     build:
       skip: True  # [py<36 or win]
       entry_points:
@@ -69,10 +67,11 @@ outputs:
         - pip
       run:
         - python
+        - aiohttp
+        - colorlog
         - cryptography
-        - tornado
         - traitlets
-        - sqlalchemy
+
     test:
       imports:
         - dask_gateway_server
@@ -80,6 +79,7 @@ outputs:
         - dask-gateway-server --help
         - which dask-gateway-jobqueue-launcher
 
+    # Kerberos authentication
   - name: dask-gateway-server-kerberos
     build:
       skip: True  # [py<36 or win]
@@ -91,31 +91,61 @@ outputs:
       imports:
         - dask_gateway_server
 
-  - name: dask-gateway-server-kubernetes
+    # Local backend
+  - name: dask-gateway-server-local
     build:
       skip: True  # [py<36 or win]
     requirements:
       - python
       - {{ pin_subpackage('dask-gateway-server', exact=True) }}
-      - python-kubernetes >=9
+      - sqlalchemy
     test:
       imports:
-        - dask_gateway_server.managers.kubernetes
+        - dask_gateway_server
+        - dask_gateway_server.backends.local
 
+    # Jobqueue backends
+  - name: dask-gateway-server-jobqueue
+    build:
+      skip: True  # [py<36 or win]
+    requirements:
+      - python
+      - {{ pin_subpackage('dask-gateway-server', exact=True) }}
+      - sqlalchemy
+    test:
+      imports:
+        - dask_gateway_server
+        - dask_gateway_server.backends.jobqueue.slurm
+        - dask_gateway_server.backends.jobqueue.pbs
+
+    # Hadoop/YARN backend
   - name: dask-gateway-server-yarn
     build:
       skip: True  # [py<36 or win]
     requirements:
       - python
       - {{ pin_subpackage('dask-gateway-server', exact=True) }}
+      - sqlalchemy
       - skein >=0.7.3
     test:
       imports:
-        - dask_gateway_server.managers.yarn
+        - dask_gateway_server.backends.yarn
+
+    # Kubernetes backend
+  - name: dask-gateway-server-kubernetes
+    build:
+      skip: True  # [py<36 or win]
+    requirements:
+      - python
+      - {{ pin_subpackage('dask-gateway-server', exact=True) }}
+      - kubernetes_asyncio
+    test:
+      imports:
+        - dask_gateway_server.backends.kubernetes
 
 about:
   home: http://github.com/dask/dask-gateway
-  license: New BSD
+  license: BSD-3-Clause
   license_family: BSD
   license_file: LICENSE
   summary: A multi-tenant server for securely deploying and managing Dask clusters.
