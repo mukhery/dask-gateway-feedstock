@@ -1,5 +1,5 @@
 {% set name = "dask-gateway" %}
-{% set version = "0.7.0" %}
+{% set version = "0.7.1" %}
 
 package:
   version: {{ version }}
@@ -7,11 +7,11 @@ package:
 
 source:
   url: https://github.com/dask/{{ name }}/archive/{{ version }}.tar.gz
-  sha256: 93d51c2a2ceb2c30753e5b32ad31cdc539c0e6b83cb55f293e79cd635aabde6b
+  sha256: c8561bc445c0e95eebf49fc1f3cf6ea203e0cae783eacd5d8b87aa0d16d59467
 
 build:
   number: 0
-  skip: True  # [py<36]
+  skip: true  # [py<36]
   script: cd dask-gateway && python -m pip install . -vv --no-deps
   entry_points:
     - dask-gateway-scheduler = dask_gateway.dask_cli:scheduler
@@ -41,7 +41,7 @@ outputs:
     # Client-side kerberos auth
   - name: dask-gateway-kerberos
     build:
-      skip: True  # [py<36]
+      skip: true  # [py<36]
     requirements:
       - python
       - {{ pin_subpackage('dask-gateway', exact=True) }}
@@ -56,7 +56,7 @@ outputs:
     # XXX: conda-build requires a file here for some reason, can't inline script
     script: build-dask-gateway-server.sh
     build:
-      skip: True  # [py<36 or win]
+      skip: true  # [py<36 or win]
       entry_points:
         - dask-gateway-server = dask_gateway_server.app:main
         - dask-gateway-jobqueue-launcher = dask_gateway_server.managers.jobqueue.launcher:main
@@ -82,7 +82,7 @@ outputs:
     # Kerberos authentication
   - name: dask-gateway-server-kerberos
     build:
-      skip: True  # [py<36 or win]
+      skip: true  # [py<36 or win]
     requirements:
       - python
       - {{ pin_subpackage('dask-gateway-server', exact=True) }}
@@ -94,7 +94,7 @@ outputs:
     # Local backend
   - name: dask-gateway-server-local
     build:
-      skip: True  # [py<36 or win]
+      skip: true  # [py<36 or win]
     requirements:
       - python
       - {{ pin_subpackage('dask-gateway-server', exact=True) }}
@@ -107,7 +107,7 @@ outputs:
     # Jobqueue backends
   - name: dask-gateway-server-jobqueue
     build:
-      skip: True  # [py<36 or win]
+      skip: true  # [py<36 or win]
     requirements:
       - python
       - {{ pin_subpackage('dask-gateway-server', exact=True) }}
@@ -121,7 +121,7 @@ outputs:
     # Hadoop/YARN backend
   - name: dask-gateway-server-yarn
     build:
-      skip: True  # [py<36 or win]
+      skip: true  # [py<36 or win]
     requirements:
       - python
       - {{ pin_subpackage('dask-gateway-server', exact=True) }}
@@ -134,7 +134,7 @@ outputs:
     # Kubernetes backend
   - name: dask-gateway-server-kubernetes
     build:
-      skip: True  # [py<36 or win]
+      skip: true  # [py<36 or win]
     requirements:
       - python
       - {{ pin_subpackage('dask-gateway-server', exact=True) }}
