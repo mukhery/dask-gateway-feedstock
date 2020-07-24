@@ -5,7 +5,7 @@ Home: http://github.com/dask/dask-gateway
 
 Package license: BSD-3-Clause
 
-Feedstock license: BSD 3-Clause
+Feedstock license: BSD-3-Clause
 
 Summary: A multi-tenant server for securely deploying and managing Dask clusters.
 
