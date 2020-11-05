@@ -14,9 +14,6 @@ build:
   number: 0
   skip: true  # [py<36]
   script: cd dask-gateway && python -m pip install . -vv --no-deps
-  entry_points:
-    - dask-gateway-scheduler = dask_gateway.dask_cli:scheduler
-    - dask-gateway-worker = dask_gateway.dask_cli:worker
 
 requirements:
   host:
