@@ -1,5 +1,5 @@
 {% set name = "dask-gateway" %}
-{% set version = "0.8.0" %}
+{% set version = "0.9.0" %}
 
 package:
   version: {{ version }}
@@ -7,15 +7,13 @@ package:
 
 source:
   url: https://github.com/dask/{{ name }}/archive/{{ version }}.tar.gz
-  sha256: b7dd60b37953b804bebb999f97263cd0f3493d985f9d922d5e89ee52edf17234
+  sha256: de99927a7f2e97f53b4c0ab7a784fc36ccf5dba22fb1cb15c5bd7d29e5fe1990
+
 
 build:
   number: 0
   skip: true  # [py<36]
   script: cd dask-gateway && python -m pip install . -vv --no-deps
-  entry_points:
-    - dask-gateway-scheduler = dask_gateway.dask_cli:scheduler
-    - dask-gateway-worker = dask_gateway.dask_cli:worker
 
 requirements:
   host:
@@ -30,9 +28,6 @@ requirements:
 test:
   imports:
     - dask_gateway
-  commands:
-    - dask-gateway-scheduler --help
-    - dask-gateway-worker --help
 
 outputs:
     # Core client package (full recipe is above)
