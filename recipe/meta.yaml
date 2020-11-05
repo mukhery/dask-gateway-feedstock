@@ -28,9 +28,6 @@ requirements:
 test:
   imports:
     - dask_gateway
-  commands:
-    - dask-gateway-scheduler --help
-    - dask-gateway-worker --help
 
 outputs:
     # Core client package (full recipe is above)
