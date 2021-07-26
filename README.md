@@ -145,6 +145,7 @@ Installing `dask-gateway` from the `conda-forge` channel can be achieved by addi
 
 ```
 conda config --add channels conda-forge
+conda config --set channel_priority strict
 ```
 
 Once the `conda-forge` channel has been enabled, `dask-gateway, dask-gateway-kerberos, dask-gateway-server, dask-gateway-server-jobqueue, dask-gateway-server-kerberos, dask-gateway-server-kubernetes, dask-gateway-server-local, dask-gateway-server-yarn` can be installed with:
