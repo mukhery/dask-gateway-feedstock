@@ -1,143 +1,191 @@
+# meta.yaml is configuration for the tool conda-build.
+#
+# meta.yaml reference:
+# https://docs.conda.io/projects/conda-build/en/latest/resources/define-metadata.html
+#
 {% set name = "dask-gateway" %}
-{% set version = "0.9.0" %}
+{% set version = "2022.4.0" %}
 
+
+
+# Common configuration for dask-gateway and dask-gateway-server outputs
+# -----------------------------------------------------------------------------
 package:
   version: {{ version }}
   name: {{ name|lower }}
 
 source:
   url: https://github.com/dask/{{ name }}/archive/{{ version }}.tar.gz
-  sha256: de99927a7f2e97f53b4c0ab7a784fc36ccf5dba22fb1cb15c5bd7d29e5fe1990
-
+  sha256: 3c79b1458e5c52f8b875332a75c034a62bb1563b650eac14f4e9cea1a217e6e6
 
 build:
-  number: 2
-  skip: true  # [py<36]
-  script: cd dask-gateway && python -m pip install . -vv --no-deps
+  number: 0
 
-requirements:
-  host:
-    - python
-    - pip
-  run:
-    - python
-    - aiohttp
-    - dask >=2.2.0
-    - distributed >=2.2.0
 
-test:
-  imports:
-    - dask_gateway
 
+# Specific configuration for outputs beyond the common configuration above
+# -----------------------------------------------------------------------------
 outputs:
-    # Core client package (full recipe is above)
-  - name: dask-gateway
-
-    # Client-side kerberos auth
-  - name: dask-gateway-kerberos
-    build:
-      skip: true  # [py<36]
-    requirements:
-      - python
-      - {{ pin_subpackage('dask-gateway', exact=True) }}
-      - pykerberos  # [osx or linux]
-      - winkerberos  # [win]
-    test:
-      imports:
-        - dask_gateway
-
-    # Core package, required dependencies only
+  # core package: server
   - name: dask-gateway-server
-    # XXX: conda-build requires a file here for some reason, can't inline script
-    script: build-dask-gateway-server.sh
     build:
-      skip: true  # [py<36 or win]
+      # dask-gateway-server don't support windows, dask-gateway does
+      #
+      skip: true  # [target_platform == 'win-64']
+      script: >-
+        cd dask-gateway-server &&
+        python -m pip install . -vv --no-deps
+      # entry_points below should match entry_points in setup.py:
+      # https://github.com/dask/dask-gateway/blob/main/dask-gateway-server/setup.py
+      #
       entry_points:
         - dask-gateway-server = dask_gateway_server.app:main
-        - dask-gateway-jobqueue-launcher = dask_gateway_server.managers.jobqueue.launcher:main
+        - dask-gateway-jobqueue-launcher = dask_gateway_server.backends.jobqueue.launcher:main
     requirements:
       build:
+        # This jinja function expands to go-nocgo_<target-platform>, and that
+        # specific package will setup GOOS and GOARCH so that we compile for the
+        # right target architecture.
+        #
+        # For details about compiler(), see
+        # https://docs.conda.io/projects/conda-build/en/latest/resources/variants.html#extra-jinja2.
+        #
         - {{ compiler('go') }}
       host:
-        - python
+        - python {{ python }}
         - pip
       run:
         - python
+        # Requirements below should match content of requirements.txt:
+        # https://github.com/dask/dask-gateway/blob/main/dask-gateway-server/requirements.txt
+        #
         - aiohttp
         - colorlog
         - cryptography
         - traitlets
-
     test:
       imports:
         - dask_gateway_server
       commands:
         - dask-gateway-server --help
-        - which dask-gateway-jobqueue-launcher
+        # FIXME: For some reason, "which dask-gateway-server" errors even though
+        #        "dask-gateway-server --help" works in linux-aarch64
+        #        specifically.
+        #
+        #        Due to this, we have disabled the test below specifically for
+        #        linux-aarch64 but assume the package still is functional.
+        #
+        - which dask-gateway-jobqueue-launcher  # [target_platform != 'linux-aarch64']
 
-    # Kerberos authentication
+
+  # core package: client
+  - name: dask-gateway
+    build:
+      noarch: python
+      script: >-
+        cd dask-gateway &&
+        python -m pip install . -vv --no-deps
+    requirements:
+      host:
+        - python >=3.8
+        - pip
+      run:
+        - python >=3.8
+        # Requirements below should match content of requirements.txt:
+        # https://github.com/dask/dask-gateway/blob/main/dask-gateway/requirements.txt
+        #
+        - aiohttp
+        - click
+        - dask >=2.2.0
+        - distributed >=2021.01.1
+        - pyyaml
+        - tornado
+    test:
+      imports:
+        - dask_gateway
+
+
+
+  # client: kerberos authentication
+  - name: dask-gateway-kerberos
+    requirements:
+      run:
+        - dask-gateway {{ version }}
+        - pykerberos  # [target_platform != 'win-64']
+        - winkerberos  # [target_platform == 'win-64']
+    test:
+      imports:
+        - dask_gateway
+
+  # server: kerberos authentication
   - name: dask-gateway-server-kerberos
     build:
-      skip: true  # [py<36 or win]
+      skip: true  # [target_platform == 'win-64']
     requirements:
-      - python
-      - {{ pin_subpackage('dask-gateway-server', exact=True) }}
-      - pykerberos
+      run:
+        - dask-gateway-server {{ version }}
+        - pykerberos
     test:
       imports:
         - dask_gateway_server
 
-    # Local backend
+  # server: local backend
   - name: dask-gateway-server-local
     build:
-      skip: true  # [py<36 or win]
+      skip: true  # [target_platform == 'win-64']
     requirements:
-      - python
-      - {{ pin_subpackage('dask-gateway-server', exact=True) }}
-      - sqlalchemy
+      run:
+        - dask-gateway-server {{ version }}
+        - sqlalchemy
     test:
       imports:
         - dask_gateway_server
         - dask_gateway_server.backends.local
 
-    # Jobqueue backends
+  # server: jobqueue backends
   - name: dask-gateway-server-jobqueue
     build:
-      skip: true  # [py<36 or win]
+      skip: true  # [target_platform == 'win-64']
     requirements:
-      - python
-      - {{ pin_subpackage('dask-gateway-server', exact=True) }}
-      - sqlalchemy
+      run:
+        - dask-gateway-server {{ version }}
+        - sqlalchemy
     test:
       imports:
         - dask_gateway_server
         - dask_gateway_server.backends.jobqueue.slurm
         - dask_gateway_server.backends.jobqueue.pbs
 
-    # Hadoop/YARN backend
+  # server: hadoop yarn backend
   - name: dask-gateway-server-yarn
     build:
-      skip: true  # [py<36 or win]
+      skip: true  # [target_platform == 'win-64']
     requirements:
-      - python
-      - {{ pin_subpackage('dask-gateway-server', exact=True) }}
-      - sqlalchemy
-      - skein >=0.7.3
+      run:
+        - dask-gateway-server {{ version }}
+        - sqlalchemy
+        - skein >=0.7.3
     test:
       imports:
         - dask_gateway_server.backends.yarn
 
-    # Kubernetes backend
+  # server: kubernetes backend
   - name: dask-gateway-server-kubernetes
     build:
-      skip: true  # [py<36 or win]
+      skip: true  # [target_platform == 'win-64']
     requirements:
-      - python
-      - {{ pin_subpackage('dask-gateway-server', exact=True) }}
-      - kubernetes_asyncio
+      run:
+        - dask-gateway-server {{ version }}
+        - kubernetes_asyncio
     test:
       imports:
         - dask_gateway_server.backends.kubernetes
+
+
+
+
+# Additional information
+# -----------------------------------------------------------------------------
 
 about:
   home: http://github.com/dask/dask-gateway
@@ -150,5 +198,12 @@ about:
   dev_url: http://github.com/dask/dask-gateway
 
 extra:
+  # To add new maintainers, open an issue with a specific title as described in
+  # https://conda-forge.org/docs/maintainer/updating_pkgs.html#updating-the-maintainer-list
+  #
   recipe-maintainers:
+    - consideRatio
+    - jacobtomlinson
     - jcrist
+    - martindurant
+    - TomAugspurger
