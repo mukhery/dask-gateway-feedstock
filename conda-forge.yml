@@ -1,6 +1,60 @@
-provider:
-  win: azure
+# conda-forge.yml is configuration for the tool conda-smithy.
+#
+# conda-forge.yml reference:
+# https://conda-forge.org/docs/maintainer/conda_forge_yml.html
+#
+# Rerender the feedstock if you make changes to this file. This can for example
+# be done by commenting "@conda-forge-admin, please rerender" in a PR or with:
+#
+#   conda-smithy rerender --commit auto
+#
+
+# https://conda-forge.org/docs/maintainer/conda_forge_yml.html#build-with-mambabuild
+build_with_mambabuild: true
+
+# https://conda-forge.org/docs/maintainer/conda_forge_yml.html#conda-forge-output-validation
 conda_forge_output_validation: true
+
+# https://conda-forge.org/docs/maintainer/conda_forge_yml.html#github
 github:
   branch_name: main
   tooling_branch_name: main
+
+# https://conda-forge.org/docs/maintainer/conda_forge_yml.html#build-platform
+#
+# We specify build_platform to ensure we package for linux-aarch64 as well,
+# which otherwise won't be done by default.
+#
+build_platform:
+  # target_platform: build_platform
+  linux_64: linux_64
+  linux_aarch64: linux_aarch64
+  osx_64: osx_64
+  # FIXME: So far we have failed to cross compile to osx-arm64 while also being
+  #        successful in declaring the target_platform.
+  # osx_arm64: osx_64
+  win_64: win_64
+
+# provider for linux_aarch64 has to be set explicitly as it otherwise defaults
+# to no provider.
+#
+# https://conda-forge.org/docs/maintainer/conda_forge_yml.html#provider
+#
+provider:
+  # build_platform: provider of ci workers
+  linux_64: azure
+  # linux_aarch64 is declared as native but is probably emulated behind the
+  # scenes as its very slow running.
+  linux_aarch64: azure
+  osx_64: azure
+  # osx_arm64 isn't available natively from any provider of CI workers yet
+  #osx_arm64: azure
+  win_64: azure
+
+# tests are run only when build_platform matches target_platform (native). This
+# is currently always the case, but that may change if we manage to
+# cross-compile going forward.
+#
+# https://conda-forge.org/docs/maintainer/conda_forge_yml.html#test
+#
+test: native
