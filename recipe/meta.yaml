@@ -61,7 +61,7 @@ outputs:
         - aiohttp
         - colorlog
         - cryptography
-        - traitlets
+        - traitlets >=5.2.2.post1
     test:
       imports:
         - dask_gateway_server
@@ -94,8 +94,8 @@ outputs:
         #
         - aiohttp
         - click
-        - dask >=2.2.0
-        - distributed >=2021.01.1
+        - dask >=2022.4.0
+        - distributed >=2022.4.0
         - pyyaml
         - tornado
     test:
