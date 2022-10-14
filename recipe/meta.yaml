@@ -109,6 +109,9 @@ outputs:
     requirements:
       run:
         - dask-gateway {{ version }}
+        # Requirements below should match content of setup.py's extras_require:
+        # https://github.com/dask/dask-gateway/blob/main/dask-gateway/setup.py#L207
+        #
         - pykerberos  # [target_platform != 'win-64']
         - winkerberos  # [target_platform == 'win-64']
     test:
@@ -122,6 +125,9 @@ outputs:
     requirements:
       run:
         - dask-gateway-server {{ version }}
+        # Requirements below should match content of setup.py's extras_require:
+        # https://github.com/dask/dask-gateway/blob/main/dask-gateway-server/setup.py#L207
+        #
         - pykerberos
     test:
       imports:
@@ -134,6 +140,9 @@ outputs:
     requirements:
       run:
         - dask-gateway-server {{ version }}
+        # Requirements below should match content of setup.py's extras_require:
+        # https://github.com/dask/dask-gateway/blob/main/dask-gateway-server/setup.py#L207
+        #
         - sqlalchemy
     test:
       imports:
@@ -147,6 +156,9 @@ outputs:
     requirements:
       run:
         - dask-gateway-server {{ version }}
+        # Requirements below should match content of setup.py's extras_require:
+        # https://github.com/dask/dask-gateway/blob/main/dask-gateway-server/setup.py#L207
+        #
         - sqlalchemy
     test:
       imports:
@@ -161,6 +173,9 @@ outputs:
     requirements:
       run:
         - dask-gateway-server {{ version }}
+        # Requirements below should match content of setup.py's extras_require:
+        # https://github.com/dask/dask-gateway/blob/main/dask-gateway-server/setup.py#L207
+        #
         - sqlalchemy
         - skein >=0.7.3
     test:
@@ -174,6 +189,9 @@ outputs:
     requirements:
       run:
         - dask-gateway-server {{ version }}
+        # Requirements below should match content of setup.py's extras_require:
+        # https://github.com/dask/dask-gateway/blob/main/dask-gateway-server/setup.py#L207
+        #
         - kubernetes_asyncio
     test:
       imports:
