@@ -58,3 +58,5 @@ provider:
 # https://conda-forge.org/docs/maintainer/conda_forge_yml.html#test
 #
 test: native
+conda_build:
+  pkg_format: '2'
