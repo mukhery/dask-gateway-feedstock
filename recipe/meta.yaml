@@ -20,6 +20,7 @@ source:
 
 build:
   number: 0
+  noarch: python
 
 
 
@@ -51,7 +52,7 @@ outputs:
         #
         - {{ compiler('go') }}
       host:
-        - python {{ python }}
+        - python >=3.8
         - pip
       run:
         - python
